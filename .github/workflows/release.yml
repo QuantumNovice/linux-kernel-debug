@@ -1,0 +1,52 @@
+name: Build and Release Module
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install dependencies
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential linux-headers-$(uname -r)
+
+      - name: Build kernel module
+        run: make
+
+      - name: Archive build artifacts
+        run: |
+          mkdir output
+          cp *.ko output/
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: proclist-binaries
+          path: output/
+
+  release:
+    needs: build
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Download built artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: proclist-binaries
+          path: output/
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: Release ${{ github.ref_name }}
+          files: output/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

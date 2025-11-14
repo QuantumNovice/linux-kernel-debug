@@ -1,0 +1,26 @@
+name: Build Kernel Module
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build-module:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Install kernel headers
+        run: |
+          sudo apt update
+          sudo apt install -y build-essential linux-headers-$(uname -r)
+
+      - name: Build module
+        run: make
+
+      - name: List build output
+        run: ls -al

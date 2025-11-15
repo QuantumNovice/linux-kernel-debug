@@ -19,4 +19,5 @@ sudo dmesh|tail
 
 # Remove
 ```
-sudo rmmod proclist.ko```
+sudo rmmod proclist.ko
+```
